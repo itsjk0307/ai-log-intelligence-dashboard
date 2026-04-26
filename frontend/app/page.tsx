@@ -40,6 +40,13 @@ const LEVEL_COLORS: Record<LogLevel, string> = {
   warning: "#f59e0b",
   info: "#3b82f6",
 };
+const DEMO_EXAMPLES = [
+  "Sensor connection failed at 14:32",
+  "Temperature exceeded safe threshold",
+  "System started successfully",
+  "Disk usage is critically high",
+  "Network latency increased significantly",
+];
 const DEMO_LOGS: Array<{ text: string; result: AnalyzeResponse }> = [
   {
     text: "[ERROR] Sensor connection failed in chamber 03",
@@ -149,8 +156,9 @@ export default function DashboardPage() {
     }));
   }, [recentLogs]);
 
-  const analyzeLog = async () => {
-    if (!input.trim()) return;
+  const analyzeLog = async (textOverride?: string) => {
+    const textToAnalyze = textOverride ?? input;
+    if (!textToAnalyze.trim()) return;
 
     setLoading(true);
     setError(null);
@@ -159,7 +167,7 @@ export default function DashboardPage() {
       const response = await fetch(`${API_URL}/analyze-log`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input }),
+        body: JSON.stringify({ text: textToAnalyze }),
       });
 
       if (!response.ok) {
@@ -171,7 +179,7 @@ export default function DashboardPage() {
 
       const newItem: HistoryItem = {
         id: Date.now(),
-        text: input,
+        text: textToAnalyze,
         result,
         timestamp: new Date().toLocaleTimeString(),
       };
@@ -205,20 +213,45 @@ export default function DashboardPage() {
     window.localStorage.removeItem(HISTORY_STORAGE_KEY);
   };
 
+  const handleDemoClick = (demoText: string) => {
+    setInput(demoText);
+    void analyzeLog(demoText);
+  };
+
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-6 lg:p-10">
-      <motion.header
+      <motion.nav
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass rounded-2xl p-6"
+        className="glass sticky top-4 z-10 rounded-2xl px-6 py-4"
       >
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-400">AI Monitoring</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white lg:text-4xl">
-          AI Log Intelligence Dashboard
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">System Intelligence</p>
+            <p className="mt-1 text-lg font-semibold text-white">AI System Monitoring Dashboard</p>
+          </div>
+          <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-200">
+            NLP-Based Log Analysis &amp; Issue Detection
+          </span>
+        </div>
+      </motion.nav>
+
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.03 }}
+        className="glass rounded-2xl px-6 py-12 text-center lg:px-12"
+      >
+        <p className="text-sm uppercase tracking-[0.32em] text-slate-400">AI Monitoring Suite</p>
+        <h1 className="mx-auto mt-4 max-w-4xl text-4xl font-semibold leading-tight text-white lg:text-5xl">
+          AI System Monitoring Dashboard
         </h1>
-        <p className="mt-3 max-w-3xl text-slate-300">
-          Analyze infrastructure logs with NLP classification, confidence scoring, and real-time
-          trend visualization.
+        <p className="mt-3 text-base font-medium text-cyan-200 lg:text-lg">
+          NLP-Based Log Analysis &amp; Issue Detection
+        </p>
+        <p className="mx-auto mt-4 max-w-3xl text-slate-300">
+          Analyze system logs using AI to detect issues, classify severity, and monitor system
+          health in real-time.
         </p>
       </motion.header>
 
@@ -230,6 +263,21 @@ export default function DashboardPage() {
           className="glass rounded-2xl p-6"
         >
           <h2 className="text-lg font-semibold">Log Input</h2>
+          <div className="mt-4">
+            <p className="mb-2 text-sm text-slate-300">Demo Logs</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {DEMO_EXAMPLES.map((example) => (
+                <button
+                  key={example}
+                  type="button"
+                  onClick={() => handleDemoClick(example)}
+                  className="rounded-xl border border-border bg-slate-900/70 px-3 py-2 text-left text-xs text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-800"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
