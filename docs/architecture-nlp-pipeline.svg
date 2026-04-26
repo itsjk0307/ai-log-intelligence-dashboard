@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="AI System Monitoring Dashboard NLP architecture">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b1020"/>
+      <stop offset="55%" style="stop-color:#111a33"/>
+      <stop offset="100%" style="stop-color:#070b16"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22d3ee"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <filter id="glow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <style type="text/css"><![CDATA[
+      .title { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 28px; font-weight: 600; fill: #f8fafc; }
+      .subtitle { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 13px; fill: #94a3b8; letter-spacing: 0.14em; text-transform: uppercase; }
+      .nlp-label { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 15px; font-weight: 600; fill: #e2e8f0; }
+      .nlp-sub { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; fill: #cbd5e1; }
+      .small-label { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; font-weight: 600; fill: #cbd5e1; }
+      .small-sub { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; fill: #94a3b8; }
+      .step-num { font-family: ui-monospace, monospace; font-size: 11px; fill: #38bdf8; font-weight: 600; }
+    ]]></style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <g opacity="0.07" stroke="#94a3b8" stroke-width="1">
+    <path d="M0 120 H1600 M0 240 H1600 M0 360 H1600 M0 480 H1600 M0 600 H1600 M0 720 H1600"/>
+    <path d="M200 0 V900 M400 0 V900 M600 0 V900 M800 0 V900 M1000 0 V900 M1200 0 V900 M1400 0 V900"/>
+  </g>
+
+  <text x="800" y="52" text-anchor="middle" class="subtitle">System architecture ù NLP pipeline</text>
+  <text x="800" y="90" text-anchor="middle" class="title">AI System Monitoring Dashboard</text>
+
+  <!-- 01-03 left column -->
+  <rect x="56" y="128" width="300" height="72" rx="14" fill="#131b34" fill-opacity="0.92" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="76" y="160" class="step-num">01</text>
+  <text x="206" y="166" text-anchor="middle" class="nlp-label">Raw System Log Input</text>
+  <text x="206" y="186" text-anchor="middle" class="nlp-sub">Unstructured log lines</text>
+
+  <rect x="56" y="216" width="300" height="56" rx="14" fill="#131b34" fill-opacity="0.88" stroke="#334155" stroke-width="1"/>
+  <text x="76" y="242" class="step-num">02</text>
+  <text x="206" y="250" text-anchor="middle" class="nlp-label">Text Preprocessing</text>
+
+  <rect x="56" y="288" width="300" height="56" rx="14" fill="#131b34" fill-opacity="0.88" stroke="#334155" stroke-width="1"/>
+  <text x="76" y="314" class="step-num">03</text>
+  <text x="206" y="322" text-anchor="middle" class="nlp-label">TF-IDF Vectorization</text>
+
+  <path d="M 206 200 L 206 216" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 206 272 L 206 288" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 04 NLP core (wide, dominant) -->
+  <rect x="392" y="128" width="820" height="360" rx="22" fill="#131b34" fill-opacity="0.96" stroke="url(#accent)" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="802" y="162" text-anchor="middle" class="step-num">04 ù CORE</text>
+  <text x="802" y="194" text-anchor="middle" class="nlp-label" font-size="18" fill="#f1f5f9">NLP Classification Models</text>
+  <text x="802" y="218" text-anchor="middle" class="nlp-sub">scikit-learn ù Logistic Regression on TF-IDF features</text>
+
+  <rect x="428" y="242" width="360" height="200" rx="16" fill="#0f172a" fill-opacity="0.85" stroke="#f87171" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="608" y="282" text-anchor="middle" class="nlp-label" fill="#fecaca">Log Level Classifier</text>
+  <text x="608" y="306" text-anchor="middle" class="nlp-sub">error ù warning ù info</text>
+  <text x="608" y="352" text-anchor="middle" class="nlp-sub">Decision boundary on</text>
+  <text x="608" y="372" text-anchor="middle" class="nlp-sub">sparse TF-IDF vectors</text>
+
+  <rect x="816" y="242" width="360" height="200" rx="16" fill="#0f172a" fill-opacity="0.85" stroke="#67e8f9" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="996" y="282" text-anchor="middle" class="nlp-label" fill="#a5f3fc">Issue Category Classifier</text>
+  <text x="996" y="306" text-anchor="middle" class="nlp-sub">network ù hardware ù system</text>
+  <text x="996" y="324" text-anchor="middle" class="nlp-sub">performance ù unknown</text>
+
+  <path d="M 356 316 L 392 316" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 05 confidence row under NLP -->
+  <rect x="392" y="508" width="820" height="72" rx="16" fill="#131b34" fill-opacity="0.9" stroke="#38bdf8" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="412" y="542" class="step-num">05</text>
+  <text x="802" y="544" text-anchor="middle" class="nlp-label">Confidence Scoring + Keyword Extraction</text>
+  <text x="802" y="566" text-anchor="middle" class="nlp-sub">Class probabilities (predict_proba) ù top TF-IDF terms</text>
+
+  <path d="M 802 488 L 802 508" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 06-07 thin stack right -->
+  <g transform="translate(1248, 128)">
+    <rect x="0" y="0" width="296" height="52" rx="12" fill="#0f172a" fill-opacity="0.92" stroke="#475569" stroke-width="1"/>
+    <text x="18" y="22" class="step-num">06</text>
+    <text x="158" y="24" text-anchor="middle" class="small-label">FastAPI Prediction API</text>
+    <text x="158" y="40" text-anchor="middle" class="small-sub">POST /analyze-log</text>
+  </g>
+  <g transform="translate(1248, 192)">
+    <rect x="0" y="0" width="296" height="52" rx="12" fill="#0f172a" fill-opacity="0.92" stroke="#475569" stroke-width="1"/>
+    <text x="18" y="22" class="step-num">07</text>
+    <text x="158" y="24" text-anchor="middle" class="small-label">Next.js Dashboard</text>
+    <text x="158" y="40" text-anchor="middle" class="small-sub">Visualization layer</text>
+  </g>
+
+  <path d="M 1212 544 H 1248 V 154" stroke="#334155" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="56" y="772" width="1488" height="56" rx="12" fill="#131b34" fill-opacity="0.55" stroke="#24304f" stroke-width="1"/>
+  <text x="80" y="806" class="small-sub" fill="#64748b">Emphasis: NLP pipeline (vectorization, dual classifiers, confidence, keywords). API and UI are compact integration blocks.</text>
+</svg>

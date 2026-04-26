@@ -269,7 +269,7 @@ export default function DashboardPage() {
             <p className="mt-1 text-lg font-semibold text-white">AI System Monitoring Dashboard</p>
           </div>
           <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-200">
-            NLP-Based Log Analysis &amp; Issue Detection
+            NLP-Based Log Analysis & Issue Detection
           </span>
         </div>
       </motion.nav>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
           AI System Monitoring Dashboard
         </h1>
         <p className="mt-3 text-base font-medium text-cyan-200 lg:text-lg">
-          NLP-Based Log Analysis &amp; Issue Detection
+          NLP-Based Log Analysis & Issue Detection
         </p>
         <p className="mx-auto mt-4 max-w-3xl text-slate-300">
           Analyze system logs using AI to detect issues, classify severity, and monitor system
@@ -542,19 +542,6 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
-      <motion.section
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="glass rounded-2xl p-6 lg:p-8"
-      >
-        <h3 className="text-xl font-semibold text-white">About This Project</h3>
-        <p className="mt-3 max-w-4xl text-sm leading-relaxed text-slate-300 lg:text-base">
-          This project uses NLP techniques to analyze system logs, classify issues, and monitor
-          system health. It simulates real-world industrial and IoT monitoring environments by
-          turning raw logs into actionable insights.
-        </p>
-      </motion.section>
     </main>
   );
 }

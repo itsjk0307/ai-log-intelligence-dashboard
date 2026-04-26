@@ -1,4 +1,4 @@
-# AI Log Intelligence Dashboard
+# AI System Monitoring Dashboard
 
 A full-stack NLP project that analyzes system logs, classifies severity and issue type, extracts important keywords, and visualizes trends in a modern dark dashboard.
 

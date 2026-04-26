@@ -73,7 +73,7 @@ def predict_with_confidence(text: str, model: Pipeline) -> tuple[str, float]:
 
 
 app = FastAPI(
-    title="AI Log Intelligence Dashboard API",
+    title="AI System Monitoring Dashboard API",
     description="Classifies log level and issue category for system logs.",
     version="1.0.0",
 )
