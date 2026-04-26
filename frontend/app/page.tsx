@@ -36,9 +36,16 @@ type HistoryItem = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const HISTORY_STORAGE_KEY = "ai-log-dashboard-recent-logs";
 const LEVEL_COLORS: Record<LogLevel, string> = {
-  error: "#ef4444",
-  warning: "#f59e0b",
-  info: "#3b82f6",
+  error: "#f87171",
+  warning: "#fbbf24",
+  info: "#60a5fa",
+};
+const ISSUE_ICONS: Record<IssueCategory, string> = {
+  network: "🌐",
+  hardware: "🛠️",
+  system: "🖥️",
+  performance: "⚡",
+  unknown: "❓",
 };
 const DEMO_EXAMPLES = [
   "Sensor connection failed at 14:32",
@@ -104,6 +111,7 @@ export default function DashboardPage() {
   const [input, setInput] = useState("[ERROR] Sensor connection failed");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toastError, setToastError] = useState<string | null>(null);
   const [currentResult, setCurrentResult] = useState<AnalyzeResponse | null>(null);
   const [recentLogs, setRecentLogs] = useState<HistoryItem[]>([]);
 
@@ -126,6 +134,14 @@ export default function DashboardPage() {
   useEffect(() => {
     window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(recentLogs));
   }, [recentLogs]);
+
+  useEffect(() => {
+    if (!toastError) return;
+    const timeoutId = window.setTimeout(() => {
+      setToastError(null);
+    }, 3200);
+    return () => window.clearTimeout(timeoutId);
+  }, [toastError]);
 
   const levelDistribution = useMemo(() => {
     const counts: Record<LogLevel, number> = { error: 0, warning: 0, info: 0 };
@@ -186,7 +202,9 @@ export default function DashboardPage() {
       setRecentLogs((prev) => [newItem, ...prev].slice(0, 8));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unexpected error";
-      setError(`Failed to analyze log. ${message}`);
+      const formattedMessage = `Failed to analyze log. ${message}`;
+      setError(formattedMessage);
+      setToastError(formattedMessage);
     } finally {
       setLoading(false);
     }
@@ -220,6 +238,26 @@ export default function DashboardPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 p-6 lg:p-10">
+      {toastError && (
+        <motion.div
+          initial={{ opacity: 0, y: -14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="fixed right-6 top-6 z-50 max-w-sm rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 backdrop-blur-md"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p>{toastError}</p>
+            <button
+              type="button"
+              onClick={() => setToastError(null)}
+              className="text-red-200/80 transition hover:text-red-100"
+            >
+              ×
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       <motion.nav
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -290,27 +328,34 @@ export default function DashboardPage() {
               void analyzeLog();
             }}
             disabled={loading}
-            className="mt-4 rounded-xl bg-accent px-5 py-2.5 font-medium text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 font-medium text-slate-950 transition duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-cyan-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Analyzing..." : "Analyze Log"}
+            {loading ? (
+              <>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-900/30 border-t-slate-900" />
+                Analyzing...
+              </>
+            ) : (
+              "Analyze Log"
+            )}
           </button>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={loadDemoData}
-              className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
+            className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-medium text-cyan-200 transition duration-200 hover:-translate-y-0.5 hover:bg-cyan-400/20"
             >
               Load Demo Scenario
             </button>
             <button
               type="button"
               onClick={clearHistory}
-              className="rounded-xl border border-slate-600 bg-slate-900/70 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
+              className="rounded-xl border border-slate-600 bg-slate-900/70 px-4 py-2 text-xs font-medium text-slate-300 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-800"
             >
               Clear History
             </button>
           </div>
-          {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+          {error && <p className="mt-3 text-sm text-red-300/90">{error}</p>}
         </motion.div>
 
         <motion.div
@@ -323,13 +368,31 @@ export default function DashboardPage() {
           {!currentResult ? (
             <p className="mt-4 text-slate-400">Run an analysis to populate this panel.</p>
           ) : (
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <MetricCard
-                title="Log Level"
-                value={currentResult.log_level}
-                color={LEVEL_COLORS[currentResult.log_level]}
-              />
-              <MetricCard title="Issue Category" value={currentResult.issue_category} color="#22d3ee" />
+            <motion.div
+              key={`${currentResult.log_level}-${currentResult.issue_category}-${currentResult.keywords.join("-")}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="mt-4 grid gap-4 md:grid-cols-2"
+            >
+              <ResultCard title="Log Level">
+                <p
+                  className="mt-1 text-2xl font-semibold capitalize"
+                  style={{ color: LEVEL_COLORS[currentResult.log_level] }}
+                >
+                  {currentResult.log_level}
+                </p>
+              </ResultCard>
+
+              <ResultCard title="Issue Category">
+                <div className="mt-1 flex items-center gap-2 text-cyan-200">
+                  <span className="text-xl" role="img" aria-label={`${currentResult.issue_category} icon`}>
+                    {ISSUE_ICONS[currentResult.issue_category]}
+                  </span>
+                  <p className="text-2xl font-semibold capitalize">{currentResult.issue_category}</p>
+                </div>
+              </ResultCard>
+
               <ConfidenceBar
                 title="Log Level Confidence"
                 value={currentResult.log_level_confidence}
@@ -347,7 +410,7 @@ export default function DashboardPage() {
                     currentResult.keywords.map((keyword) => (
                       <span
                         key={keyword}
-                        className="rounded-full border border-border bg-slate-950/70 px-3 py-1 text-xs text-slate-200"
+                        className="rounded-full border border-cyan-400/30 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-100"
                       >
                         {keyword}
                       </span>
@@ -357,7 +420,7 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
         </motion.div>
       </section>
@@ -370,15 +433,31 @@ export default function DashboardPage() {
           className="glass rounded-2xl p-6"
         >
           <h3 className="text-lg font-semibold">Log Level Distribution</h3>
+          <p className="mt-1 text-sm text-slate-400">Based on recent analyzed logs</p>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={levelDistribution} dataKey="value" nameKey="name" outerRadius={95}>
+                <Pie
+                  data={levelDistribution}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={92}
+                  innerRadius={52}
+                  paddingAngle={4}
+                  stroke="none"
+                >
                   {levelDistribution.map((entry) => (
                     <Cell key={entry.name} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#0f172a",
+                    border: "1px solid #334155",
+                    borderRadius: "12px",
+                    color: "#e2e8f0",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -391,14 +470,22 @@ export default function DashboardPage() {
           className="glass rounded-2xl p-6"
         >
           <h3 className="text-lg font-semibold">Issue Category Distribution</h3>
+          <p className="mt-1 text-sm text-slate-400">Trend of detected issue types</p>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={issueDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <CartesianGrid strokeDasharray="2 4" stroke="#33415588" vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#22d3ee" radius={[8, 8, 0, 0]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#0f172a",
+                    border: "1px solid #334155",
+                    borderRadius: "12px",
+                    color: "#e2e8f0",
+                  }}
+                />
+                <Bar dataKey="count" fill="#67e8f9" radius={[10, 10, 0, 0]} maxBarSize={46} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -412,14 +499,15 @@ export default function DashboardPage() {
         className="glass rounded-2xl p-6"
       >
         <h3 className="text-lg font-semibold">Recent Logs</h3>
+        <p className="mt-1 text-sm text-slate-400">Showing last 8 analyzed logs</p>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="text-slate-400">
-                <th className="pb-2">Time</th>
-                <th className="pb-2">Log Message</th>
-                <th className="pb-2">Level</th>
-                <th className="pb-2">Issue</th>
+                <th className="pb-2 font-medium">Log Text</th>
+                <th className="pb-2 font-medium">Log Level</th>
+                <th className="pb-2 font-medium">Issue Category</th>
+                <th className="pb-2 font-medium">Confidence</th>
               </tr>
             </thead>
             <tbody>
@@ -431,13 +519,21 @@ export default function DashboardPage() {
                 </tr>
               ) : (
                 recentLogs.map((item) => (
-                  <tr key={item.id} className="border-t border-border/70 align-top">
-                    <td className="py-3 text-slate-400">{item.timestamp}</td>
-                    <td className="py-3 pr-3 text-slate-200">{item.text}</td>
-                    <td className="py-3 capitalize" style={{ color: LEVEL_COLORS[item.result.log_level] }}>
+                  <tr
+                    key={item.id}
+                    className="border-t border-border/70 align-top transition-colors hover:bg-slate-900/40"
+                  >
+                    <td className="py-2.5 pr-3 text-slate-200">{item.text}</td>
+                    <td className="py-2.5 capitalize" style={{ color: LEVEL_COLORS[item.result.log_level] }}>
                       {item.result.log_level}
                     </td>
-                    <td className="py-3 capitalize text-slate-200">{item.result.issue_category}</td>
+                    <td className="py-2.5 capitalize text-slate-200">{item.result.issue_category}</td>
+                    <td className="py-2.5 text-slate-300">
+                      <span className="text-xs">
+                        Level {Math.round(item.result.log_level_confidence * 100)}% | Issue{" "}
+                        {Math.round(item.result.issue_confidence * 100)}%
+                      </span>
+                    </td>
                   </tr>
                 ))
               )}
@@ -445,17 +541,29 @@ export default function DashboardPage() {
           </table>
         </div>
       </motion.section>
+
+      <motion.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="glass rounded-2xl p-6 lg:p-8"
+      >
+        <h3 className="text-xl font-semibold text-white">About This Project</h3>
+        <p className="mt-3 max-w-4xl text-sm leading-relaxed text-slate-300 lg:text-base">
+          This project uses NLP techniques to analyze system logs, classify issues, and monitor
+          system health. It simulates real-world industrial and IoT monitoring environments by
+          turning raw logs into actionable insights.
+        </p>
+      </motion.section>
     </main>
   );
 }
 
-function MetricCard({ title, value, color }: { title: string; value: string; color: string }) {
+function ResultCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-slate-950/60 p-4">
       <p className="text-sm text-slate-400">{title}</p>
-      <p className="mt-1 text-xl font-semibold capitalize" style={{ color }}>
-        {value}
-      </p>
+      {children}
     </div>
   );
 }
@@ -469,7 +577,13 @@ function ConfidenceBar({ title, value, color }: { title: string; value: number; 
         <span className="font-medium text-slate-200">{percentage}%</span>
       </div>
       <div className="h-2 w-full rounded bg-slate-800">
-        <div className="h-full rounded transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: color }} />
+        <motion.div
+          className="h-full rounded"
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          style={{ backgroundColor: color }}
+        />
       </div>
     </div>
   );
