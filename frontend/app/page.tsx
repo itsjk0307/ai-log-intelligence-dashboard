@@ -286,7 +286,9 @@ export default function DashboardPage() {
           />
           <button
             type="button"
-            onClick={analyzeLog}
+            onClick={() => {
+              void analyzeLog();
+            }}
             disabled={loading}
             className="mt-4 rounded-xl bg-accent px-5 py-2.5 font-medium text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
